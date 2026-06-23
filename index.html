@@ -647,11 +647,51 @@ function renderTypeSelect() {
   el('btn-back').onclick = () => renderDashboard();
 }
 
-function selectType(type) {
+async function selectType(type) {
   S.selType = type;
   const subs = S.assignments.filter(a=>a.class===S.selClass).map(a=>a.subject).filter(Boolean);
-  if (type==='score' && subs.length) { renderSubjectSelect(subs); }
-  else { S.selSubject=''; renderEntry(); }
+
+  if (type === 'score') {
+    if (subs.length) {
+      // Subject-specific teacher: subjects come from their assignment rows
+      renderSubjectSelect(subs);
+    } else {
+      // Whole-class teacher: fetch subject list from GAS Subjects sheet
+      render(`
+        <div class="header">
+          <button class="header-back" id="btn-back">&#8249;</button>
+          <div class="header-titles">
+            <div class="header-title">${S.selClass}</div>
+            <div class="header-sub">Loading subjects…</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="loading-screen"><div class="spinner-dark"></div>Loading subjects…</div>
+        </div>
+      `);
+      el('btn-back').onclick = () => renderTypeSelect();
+      try {
+        const res = await gasGet({ action:'classInfo', class:S.selClass, token:S.token });
+        if (res.message?.toLowerCase().includes('expired')) {
+          S.pendingAction = () => selectType(type);
+          showReloginModal(); return;
+        }
+        if (res.status === 'success' && res.subjects && res.subjects.length) {
+          renderSubjectSelect(res.subjects);
+        } else {
+          showToast('No subjects found for this class', 'error');
+          renderTypeSelect();
+        }
+      } catch(e) {
+        showToast('Network error loading subjects', 'error');
+        renderTypeSelect();
+      }
+    }
+  } else {
+    // Attendance and assessment are class-level — no subject needed
+    S.selSubject = '';
+    renderEntry();
+  }
 }
 
 // ============================================================
@@ -735,8 +775,9 @@ async function renderEntry() {
 }
 
 function goBackFromEntry() {
-  const subs = S.assignments.filter(a=>a.class===S.selClass).map(a=>a.subject).filter(Boolean);
-  if (S.selType==='score' && subs.length) renderSubjectSelect(subs);
+  // Always go back to type selection — subject select is re-fetched
+  // fresh each time to handle both whole-class and subject-specific teachers
+  if (S.selType === 'score') selectType('score');
   else renderTypeSelect();
 }
 

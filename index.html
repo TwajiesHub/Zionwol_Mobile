@@ -308,7 +308,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzj8b0ATaaOOPzeZpCNVrqtQFKtvrCdezG14Zgom_fjAvMUxxCyxT-p40NUEtChWX3K/exec'; // ← paste your GAS URL here
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE'; // ← paste your GAS URL here
 
 // ============================================================
 // STATE
@@ -863,8 +863,8 @@ async function doGeneratePdf() {
     });
 
     if (res.status === 'success') {
-      btn.disabled = false; btn.textContent = '\u{1F4C4} PDF';
-      showPdfModal(res.pdfBase64, S.selClass, S.selSubject);
+      btn.disabled = false; btn.textContent = '📄 PDF';
+      showPdfModal(res.html, S.selClass, S.selSubject);
       return;
     }
 
@@ -884,55 +884,51 @@ async function doGeneratePdf() {
   }
 }
 
-function showPdfModal(base64, cls, subject) {
-  const bytes  = atob(base64);
-  const arr    = new Uint8Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-  const blob    = new Blob([arr], { type: 'application/pdf' });
-  const blobUrl = URL.createObjectURL(blob);
+// Store blob URL so we can revoke it on close
+let _pdfBlobUrl = null;
+
+function showPdfModal(html, cls, subject) {
+  // Create a blob URL from the HTML string
+  const blob    = new Blob([html], { type: 'text/html' });
+  _pdfBlobUrl   = URL.createObjectURL(blob);
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'pdf-modal';
   overlay.style.cssText = 'align-items:stretch; padding:0;';
   overlay.innerHTML = `
     <div style="display:flex;flex-direction:column;width:100%;height:100%;background:white;border-radius:0;">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;
-                  background:var(--primary);color:white;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;
+                  background:var(--primary);color:white;flex-shrink:0;flex-wrap:wrap;">
         <button onclick="closePdfModal()" style="background:rgba(255,255,255,0.2);
           border:none;color:white;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:13px;">
-          \u2715 Close
+          ✕ Close
         </button>
-        <div style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-          ${cls} \u2014 ${subject}
+        <div style="flex:1;font-size:13px;font-weight:600;overflow:hidden;
+                    text-overflow:ellipsis;white-space:nowrap;min-width:80px;">
+          ${cls} — ${subject}
         </div>
         <button onclick="printPdf()" style="background:rgba(255,255,255,0.2);
-          border:none;color:white;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:13px;">
-          \u{1F5A8} Print
+          border:none;color:white;padding:5px 12px;border-radius:16px;
+          cursor:pointer;font-size:13px;white-space:nowrap;">
+          🖨 Print / Save PDF
         </button>
-        <a id="pdf-download" href="${blobUrl}" download="MarkSheet_${cls}_${subject}.pdf"
-          style="background:rgba(255,255,255,0.2);color:white;padding:5px 12px;
-          border-radius:16px;font-size:13px;text-decoration:none;">
-          \u{2B07} Save
-        </a>
       </div>
-      <iframe id="pdf-frame" src="${blobUrl}" style="flex:1;border:none;width:100%;"></iframe>
+      <iframe id="pdf-frame" src="${_pdfBlobUrl}"
+        style="flex:1;border:none;width:100%;background:white;">
+      </iframe>
     </div>
   `;
   document.body.appendChild(overlay);
 }
 
 function closePdfModal() {
-  const modal = el('pdf-modal');
-  if (modal) {
-    const frame = modal.querySelector('#pdf-frame');
-    if (frame) URL.revokeObjectURL(frame.src);
-    modal.remove();
-  }
+  el('pdf-modal')?.remove();
+  if (_pdfBlobUrl) { URL.revokeObjectURL(_pdfBlobUrl); _pdfBlobUrl = null; }
 }
 
 function printPdf() {
-  const frame = el('pdf-frame');
-  if (frame) { frame.contentWindow.focus(); frame.contentWindow.print(); }
+  // Open in new tab so browser print dialog works cleanly on all devices
+  if (_pdfBlobUrl) window.open(_pdfBlobUrl, '_blank');
 }
 
 // ============================================================

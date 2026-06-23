@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Zionwol Teacher</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:      #2563eb;
+      --primary-dark: #1d4ed8;
+      --success:      #16a34a;
+      --error:        #dc2626;
+      --warning:      #d97706;
+      --bg:           #f1f5f9;
+      --card:         #ffffff;
+      --text:         #1e293b;
+      --text-light:   #64748b;
+      --border:       #e2e8f0;
+      --radius:       12px;
+      --radius-sm:    8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .app { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+    /* ── Header ──────────────────────────────────────────── */
+    .header {
+      background: var(--primary);
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .header-back {
+      background: none; border: none; color: white;
+      font-size: 22px; cursor: pointer; padding: 2px 6px;
+      flex-shrink: 0; line-height: 1;
+    }
+    .header-titles { flex: 1; min-width: 0; }
+    .header-title { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-sub   { font-size: 12px; opacity: 0.82; margin-top: 1px; }
+    .header-action {
+      background: rgba(255,255,255,0.2); border: none; color: white;
+      padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .header-action:hover { background: rgba(255,255,255,0.3); }
+
+    /* ── Auth screens ────────────────────────────────────── */
+    .auth-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 100vh; padding: 24px 20px;
+    }
+    .auth-logo {
+      width: 72px; height: 72px; background: var(--primary);
+      border-radius: 20px; display: flex; align-items: center;
+      justify-content: center; font-size: 34px; margin-bottom: 14px;
+    }
+    .auth-title    { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .auth-subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 28px; }
+    .auth-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 24px; width: 100%; max-width: 360px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .auth-footer { margin-top: 18px; text-align: center; color: var(--text-light); font-size: 14px; }
+
+    /* ── Forms ───────────────────────────────────────────── */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      font-size: 12px; font-weight: 600; color: var(--text-light);
+      margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .form-input {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 15px; color: var(--text);
+      transition: border-color 0.15s; background: white;
+    }
+    .form-input:focus { outline: none; border-color: var(--primary); }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 16px; border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s; text-align: center;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .btn-block    { width: 100%; }
+    .btn-primary  { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-success  { background: var(--success); color: white; }
+    .btn-success:hover:not(:disabled) { background: #15803d; }
+    .btn-outline  {
+      background: white; color: var(--primary);
+      border: 1.5px solid var(--primary); font-size: 14px;
+    }
+
+    /* ── Alerts ──────────────────────────────────────────── */
+    .alert { padding: 11px 13px; border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 14px; }
+    .alert-error   { background: #fef2f2; color: var(--error);   border: 1px solid #fecaca; }
+    .alert-success { background: #f0fdf4; color: var(--success);  border: 1px solid #bbf7d0; }
+    .alert-info    { background: #eff6ff; color: var(--primary);  border: 1px solid #bfdbfe; }
+    .alert-warn    { background: #fffbeb; color: var(--warning);  border: 1px solid #fde68a; }
+
+    /* ── Link ────────────────────────────────────────────── */
+    .link { color: var(--primary); cursor: pointer; text-decoration: underline; }
+
+    /* ── Content ─────────────────────────────────────────── */
+    .content { padding: 14px 16px; }
+
+    /* ── Session badge ───────────────────────────────────── */
+    .session-badge {
+      background: var(--card); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid var(--border);
+    }
+    .session-label { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.4px; }
+    .session-value { font-size: 15px; font-weight: 600; margin-top: 2px; }
+    .term-badge {
+      background: var(--primary); color: white;
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 600;
+    }
+
+    /* ── Class cards ─────────────────────────────────────── */
+    .section-title {
+      font-size: 11px; font-weight: 700; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    .class-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 8px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .class-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(37,99,235,0.1); }
+    .class-card-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: #eff6ff; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .class-card-info { flex: 1; min-width: 0; }
+    .class-card-name { font-size: 15px; font-weight: 600; }
+    .class-card-sub  { font-size: 12px; color: var(--text-light); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .class-card-arrow { color: var(--text-light); font-size: 18px; flex-shrink: 0; }
+
+    /* ── Draft indicator ─────────────────────────────────── */
+    .draft-dot {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--warning); border-radius: 50%; margin-left: 6px; vertical-align: middle;
+    }
+
+    /* ── Type cards ──────────────────────────────────────── */
+    .type-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 8px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; gap: 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .type-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(37,99,235,0.1); }
+    .type-icon { font-size: 26px; flex-shrink: 0; }
+    .type-name { font-size: 15px; font-weight: 600; }
+    .type-desc { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    /* ── Subject list ────────────────────────────────────── */
+    .subject-item {
+      background: var(--card); border-radius: var(--radius-sm);
+      padding: 13px 16px; margin-bottom: 7px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: border-color 0.15s;
+    }
+    .subject-item:hover { border-color: var(--primary); }
+    .subject-name { font-size: 14px; font-weight: 500; }
+
+    /* ── Entry grid ──────────────────────────────────────── */
+    .entry-meta {
+      background: var(--card); border-radius: var(--radius-sm);
+      padding: 10px 13px; margin-bottom: 12px;
+      border: 1px solid var(--border);
+      font-size: 13px; color: var(--text-light);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .entry-meta strong { color: var(--text); }
+
+    .grid-wrap {
+      overflow-x: auto; margin-bottom: 12px;
+      border-radius: var(--radius-sm); border: 1px solid var(--border);
+      -webkit-overflow-scrolling: touch;
+    }
+    .entry-table { border-collapse: collapse; min-width: 100%; background: white; }
+    .entry-table th {
+      background: #f8fafc; padding: 9px 6px;
+      font-size: 11px; font-weight: 700; color: var(--text-light);
+      text-align: center; border-bottom: 1.5px solid var(--border);
+      white-space: nowrap; position: sticky; top: 0;
+    }
+    .entry-table th:first-child { text-align: left; padding-left: 12px; min-width: 130px; }
+    .entry-table td { padding: 5px 4px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .entry-table td:first-child { padding-left: 10px; padding-right: 8px; }
+    .entry-table tr:last-child td { border-bottom: none; }
+    .entry-table tr:nth-child(even) td { background: #fafafa; }
+
+    .student-name { font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .student-num  { font-size: 10px; color: var(--text-light); }
+    .max-lbl      { font-size: 9px; color: var(--text-light); text-align: center; margin-top: 1px; }
+
+    .score-input {
+      width: 46px; padding: 5px 2px; text-align: center;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-weight: 600; color: var(--text);
+      -moz-appearance: textfield;
+    }
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .score-input:focus  { outline: none; border-color: var(--primary); background: #eff6ff; }
+    .score-input.bad    { border-color: var(--error); background: #fef2f2; color: var(--error); }
+
+    /* ── Upload panel ────────────────────────────────────── */
+    .upload-panel {
+      background: var(--card); border-radius: var(--radius);
+      padding: 14px 16px; border: 1px solid var(--border);
+    }
+    .upload-status { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn-success { flex: 1; }
+
+    /* ── Modal ───────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 20px;
+    }
+    .modal {
+      background: white; border-radius: var(--radius);
+      padding: 24px; width: 100%; max-width: 340px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .modal-desc  { font-size: 14px; color: var(--text-light); margin-bottom: 18px; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b; color: white;
+      padding: 11px 20px; border-radius: 24px;
+      font-size: 14px; z-index: 200; white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      animation: toastIn 0.25s ease;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--error); }
+    @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(8px); } }
+
+    /* ── Loading ─────────────────────────────────────────── */
+    .loading-screen {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 200px; color: var(--text-light); gap: 12px;
+    }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    .spinner-dark {
+      border: 2.5px solid var(--border);
+      border-top-color: var(--primary);
+      display: inline-block; width: 28px; height: 28px;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Utility ─────────────────────────────────────────── */
+    .mt-8  { margin-top: 8px; }
+    .mt-14 { margin-top: 14px; }
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .empty-msg { color: var(--text-light); font-size: 14px; text-align: center; padding: 24px 0; }
+  </style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzj8b0ATaaOOPzeZpCNVrqtQFKtvrCdezG14Zgom_fjAvMUxxCyxT-p40NUEtChWX3K/exec'; // ← paste your GAS URL here
+
+// ============================================================
+// STATE
+// ============================================================
+const S = {
+  token:         null,
+  expiresAt:     null,
+  fullName:      null,
+  role:          null,
+  assignments:   [],
+  session:       null,
+  term:          null,
+  selClass:      null,
+  selSubject:    null,
+  selType:       null,
+  roster:        [],         // [{idx, name}] loaded on entry screen
+  pendingAction: null        // called after relogin
+};
+
+// ============================================================
+// STORAGE
+// ============================================================
+const KEY = {
+  token:    'zwt_token',
+  expires:  'zwt_expires',
+  fullName: 'zwt_fullName',
+  role:     'zwt_role',
+  assign:   'zwt_assign',
+  session:  'zwt_session',
+  term:     'zwt_term',
+  draftPfx: 'zwt_draft_'
+};
+
+function saveSession(data) {
+  S.token       = data.token;
+  S.expiresAt   = data.expiresAt;
+  S.fullName    = data.fullName;
+  S.role        = data.role;
+  S.assignments = data.assignments  || [];
+  S.session     = data.activeSession;
+  S.term        = data.activeTerm;
+  localStorage.setItem(KEY.token,   data.token);
+  localStorage.setItem(KEY.expires, data.expiresAt);
+  localStorage.setItem(KEY.fullName,data.fullName);
+  localStorage.setItem(KEY.role,    data.role);
+  localStorage.setItem(KEY.assign,  JSON.stringify(data.assignments || []));
+  localStorage.setItem(KEY.session, data.activeSession);
+  localStorage.setItem(KEY.term,    String(data.activeTerm));
+}
+
+function loadSession() {
+  S.token       = localStorage.getItem(KEY.token);
+  S.expiresAt   = localStorage.getItem(KEY.expires);
+  S.fullName    = localStorage.getItem(KEY.fullName);
+  S.role        = localStorage.getItem(KEY.role);
+  S.assignments = JSON.parse(localStorage.getItem(KEY.assign) || '[]');
+  S.session     = localStorage.getItem(KEY.session);
+  S.term        = Number(localStorage.getItem(KEY.term)) || null;
+}
+
+function clearSession() {
+  Object.values(KEY).filter(k => !k.includes('draft')).forEach(k => localStorage.removeItem(k));
+  Object.keys(localStorage).filter(k => k.startsWith(KEY.draftPfx)).forEach(k => localStorage.removeItem(k));
+  S.token = null;
+}
+
+function isLoggedIn() {
+  return !!(S.token && S.expiresAt && new Date() < new Date(S.expiresAt));
+}
+
+// Draft helpers — keyed per class+subject+type
+function draftKey(cls, subj, type) { return KEY.draftPfx + btoa(unescape(encodeURIComponent([cls, subj||'', type].join('|')))); }
+function saveDraft(cls, subj, type, data)  { try { localStorage.setItem(draftKey(cls,subj,type), JSON.stringify(data)); } catch(e){} }
+function loadDraft(cls, subj, type)        { try { const r = localStorage.getItem(draftKey(cls,subj,type)); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function clearDraft(cls, subj, type)       { localStorage.removeItem(draftKey(cls,subj,type)); }
+function hasDraft(cls, subj, type)         { return localStorage.getItem(draftKey(cls,subj,type)) !== null; }
+
+// ============================================================
+// API HELPERS
+// ============================================================
+async function gasGet(params) {
+  const url = new URL(GAS_URL);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), { redirect: 'follow' });
+  return res.json();
+}
+
+async function gasPost(body) {
+  const res = await fetch(GAS_URL, {
+    method:  'POST',
+    redirect:'follow',
+    headers: { 'Content-Type': 'text/plain' },
+    body:    JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type='', duration=3200) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), duration);
+}
+
+// ============================================================
+// DOM HELPERS
+// ============================================================
+const app = () => document.getElementById('app');
+const el  = id => document.getElementById(id);
+function render(html) { app().innerHTML = html; }
+
+// ============================================================
+// VIEW: LOGIN
+// ============================================================
+function renderLogin(err='') {
+  render(`
+    <div class="auth-screen">
+      <div class="auth-logo">🎓</div>
+      <div class="auth-title">Zionwol Teacher</div>
+      <div class="auth-subtitle">Sign in to your account</div>
+      <div class="auth-card">
+        ${err ? `<div class="alert alert-error">${err}</div>` : ''}
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-input" id="inp-user" type="text" placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="inp-pass" type="password" placeholder="Enter password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-block" id="btn-login">Sign In</button>
+      </div>
+      <div class="auth-footer">No account? <span class="link" id="go-signup">Create one</span></div>
+    </div>
+  `);
+  el('btn-login').onclick  = () => doLogin(false);
+  el('go-signup').onclick  = () => renderSignup();
+  el('inp-pass').onkeydown = e => { if(e.key==='Enter') doLogin(false); };
+}
+
+async function doLogin(isRelogin=false) {
+  const username = (el('inp-user')?.value||'').trim();
+  const password = (el('inp-pass')?.value||'').trim();
+  if (!username||!password) { showToast('Enter username and password','error'); return; }
+
+  const btn = el('btn-login');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Signing in…';
+
+  try {
+    const res = await gasPost({ action:'login', username, password });
+    if (res.status!=='success') {
+      btn.disabled=false; btn.textContent='Sign In';
+      if (isRelogin) {
+        el('relogin-err').textContent=res.message;
+        el('relogin-err').classList.remove('hidden');
+      } else { renderLogin(res.message); }
+      return;
+    }
+    saveSession(res);
+    if (isRelogin) {
+      closeModal();
+      if (S.pendingAction) { S.pendingAction(); S.pendingAction=null; }
+    } else { renderDashboard(); }
+  } catch(e) {
+    btn.disabled=false; btn.textContent='Sign In';
+    showToast('Network error. Check connection.','error');
+  }
+}
+
+// ============================================================
+// VIEW: SIGNUP
+// ============================================================
+function renderSignup(err='') {
+  render(`
+    <div class="auth-screen">
+      <div class="auth-logo">🎓</div>
+      <div class="auth-title">Create Account</div>
+      <div class="auth-subtitle">Register as a teacher</div>
+      <div class="auth-card">
+        ${err ? `<div class="alert alert-error">${err}</div>` : ''}
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="inp-name" type="text" placeholder="e.g. Amaka Okafor">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-input" id="inp-user" type="text" placeholder="Choose a username (min 3 chars)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="inp-pass" type="password" placeholder="At least 6 characters">
+        </div>
+        <button class="btn btn-primary btn-block" id="btn-signup">Create Account</button>
+      </div>
+      <div class="auth-footer">Already have an account? <span class="link" id="go-login">Sign in</span></div>
+    </div>
+  `);
+  el('btn-signup').onclick = doSignup;
+  el('go-login').onclick   = () => renderLogin();
+}
+
+async function doSignup() {
+  const fullName = (el('inp-name')?.value||'').trim();
+  const username = (el('inp-user')?.value||'').trim();
+  const password = (el('inp-pass')?.value||'').trim();
+  if (!fullName||!username||!password) { showToast('All fields required','error'); return; }
+
+  const btn = el('btn-signup');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Creating account…';
+
+  try {
+    const res = await gasPost({ action:'signup', username, password, fullName });
+    if (res.status!=='success') {
+      btn.disabled=false; btn.textContent='Create Account';
+      renderSignup(res.message); return;
+    }
+    showToast('Account created! Sign in now.','success');
+    renderLogin();
+  } catch(e) {
+    btn.disabled=false; btn.textContent='Create Account';
+    showToast('Network error.','error');
+  }
+}
+
+// ============================================================
+// VIEW: DASHBOARD
+// ============================================================
+function renderDashboard() {
+  // Build class → subjects map from assignments
+  const classMap = {};
+  S.assignments.forEach(a => {
+    if (!classMap[a.class]) classMap[a.class] = [];
+    if (a.subject) classMap[a.class].push(a.subject);
+  });
+
+  const icons = ['📚','✏️','📖','🔬','🎨','🎵','🏃','💻'];
+  let i=0;
+
+  const cards = Object.entries(classMap).map(([cls, subjects]) => {
+    const sub   = subjects.length ? subjects.join(', ') : 'All subjects';
+    const draft = ['score','attendance','assessment'].some(t =>
+      subjects.length ? subjects.some(s=>hasDraft(cls,s,t)) : hasDraft(cls,'',t)
+    );
+    return `
+      <div class="class-card" onclick="selectClass('${cls.replace(/'/g,"\\'")}')">
+        <div class="class-card-icon">${icons[i++%icons.length]}</div>
+        <div class="class-card-info">
+          <div class="class-card-name">${cls}${draft?'<span class="draft-dot" title="Unsaved draft"></span>':''}</div>
+          <div class="class-card-sub">${sub}</div>
+        </div>
+        <div class="class-card-arrow">›</div>
+      </div>
+    `;
+  }).join('');
+
+  render(`
+    <div class="header">
+      <div class="header-titles" style="flex:1">
+        <div class="header-title">🎓 Zionwol Teacher</div>
+        <div class="header-sub">${S.fullName||''}</div>
+      </div>
+      <button class="header-action" id="btn-logout">Logout</button>
+    </div>
+    <div class="content">
+      <div class="session-badge">
+        <div>
+          <div class="session-label">Session</div>
+          <div class="session-value">${S.session||'—'}</div>
+        </div>
+        <div class="term-badge">Term ${S.term||'—'}</div>
+      </div>
+      <div class="section-title">My Classes</div>
+      ${cards||'<div class="empty-msg">No classes assigned yet.<br>Contact your admin.</div>'}
+    </div>
+  `);
+  el('btn-logout').onclick = () => { clearSession(); renderLogin(); };
+}
+
+function selectClass(cls) {
+  S.selClass=cls; S.selSubject=null; S.selType=null;
+  renderTypeSelect();
+}
+
+// ============================================================
+// VIEW: TYPE SELECTION
+// ============================================================
+function renderTypeSelect() {
+  const subs = S.assignments.filter(a=>a.class===S.selClass).map(a=>a.subject).filter(Boolean);
+
+  function draftBadge(type) {
+    const has = subs.length
+      ? subs.some(s=>hasDraft(S.selClass,s,type))
+      : hasDraft(S.selClass,'',type);
+    return has ? '<span class="draft-dot"></span>' : '';
+  }
+
+  render(`
+    <div class="header">
+      <button class="header-back" id="btn-back">‹</button>
+      <div class="header-titles">
+        <div class="header-title">${S.selClass}</div>
+        <div class="header-sub">Select data type</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="alert alert-info">📅 Session ${S.session} &nbsp;·&nbsp; Term ${S.term}</div>
+
+      <div class="type-card" onclick="selectType('score')">
+        <div class="type-icon">📝</div>
+        <div>
+          <div class="type-name">Scores ${draftBadge('score')}</div>
+          <div class="type-desc">Class work, home work, test &amp; exam</div>
+        </div>
+      </div>
+      <div class="type-card" onclick="selectType('attendance')">
+        <div class="type-icon">📅</div>
+        <div>
+          <div class="type-name">Attendance ${draftBadge('attendance')}</div>
+          <div class="type-desc">Weekly attendance — 14 weeks</div>
+        </div>
+      </div>
+      <div class="type-card" onclick="selectType('assessment')">
+        <div class="type-icon">⭐</div>
+        <div>
+          <div class="type-name">Assessment ${draftBadge('assessment')}</div>
+          <div class="type-desc">Affective &amp; psychomotor ratings (1–5)</div>
+        </div>
+      </div>
+    </div>
+  `);
+  el('btn-back').onclick = () => renderDashboard();
+}
+
+function selectType(type) {
+  S.selType = type;
+  const subs = S.assignments.filter(a=>a.class===S.selClass).map(a=>a.subject).filter(Boolean);
+  if (type==='score' && subs.length) { renderSubjectSelect(subs); }
+  else { S.selSubject=''; renderEntry(); }
+}
+
+// ============================================================
+// VIEW: SUBJECT SELECTION
+// ============================================================
+function renderSubjectSelect(subjects) {
+  const items = subjects.map(s => `
+    <div class="subject-item" onclick="selectSubject('${s.replace(/'/g,"\\'")}')">
+      <span class="subject-name">${s}</span>
+      <span>${hasDraft(S.selClass,s,'score')?'<span class="draft-dot"></span>':''} ›</span>
+    </div>
+  `).join('');
+
+  render(`
+    <div class="header">
+      <button class="header-back" id="btn-back">‹</button>
+      <div class="header-titles">
+        <div class="header-title">${S.selClass}</div>
+        <div class="header-sub">Select subject</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-title">Subjects</div>
+      ${items}
+    </div>
+  `);
+  el('btn-back').onclick = () => renderTypeSelect();
+}
+
+function selectSubject(subject) {
+  S.selSubject=subject; renderEntry();
+}
+
+// ============================================================
+// VIEW: ENTRY GRID
+// ============================================================
+async function renderEntry() {
+  // Show loading placeholder
+  render(`
+    <div class="header">
+      <button class="header-back" id="btn-back">‹</button>
+      <div class="header-titles">
+        <div class="header-title">${S.selClass}${S.selSubject?' — '+S.selSubject:''}</div>
+        <div class="header-sub">${S.selType} · Term ${S.term}</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="loading-screen"><div class="spinner-dark"></div>Loading students…</div>
+    </div>
+  `);
+  el('btn-back').onclick = () => goBackFromEntry();
+
+  let roster=[], gasData=null;
+
+  try {
+    const [infoRes, retRes] = await Promise.all([
+      gasGet({ action:'classInfo', class:S.selClass, token:S.token }),
+      gasGet({ action:'retrieve',  class:S.selClass, subject:S.selSubject||'', type:S.selType, token:S.token })
+    ]);
+
+    if (infoRes.status==='success') {
+      roster = infoRes.names.map((name,idx) => ({ idx, name }));
+    }
+    if (retRes.status==='found') gasData = retRes.data.students;
+
+    // Handle expired token
+    if (infoRes.message?.toLowerCase().includes('expired')) {
+      S.pendingAction = renderEntry; showReloginModal(); return;
+    }
+  } catch(e) {
+    showToast('Could not load class data. Check connection.','error');
+  }
+
+  S.roster = roster;
+
+  // Draft takes priority over GAS data
+  const draft    = loadDraft(S.selClass, S.selSubject, S.selType);
+  const initData = draft || gasData;
+
+  buildEntryGrid(roster, initData, !!draft);
+}
+
+function goBackFromEntry() {
+  const subs = S.assignments.filter(a=>a.class===S.selClass).map(a=>a.subject).filter(Boolean);
+  if (S.selType==='score' && subs.length) renderSubjectSelect(subs);
+  else renderTypeSelect();
+}
+
+function buildEntryGrid(roster, initData, hasDraftData) {
+  const type = S.selType;
+
+  // Column headers
+  let colHeaders = '';
+  if (type==='score') {
+    colHeaders = `
+      <th>CW<div class="max-lbl">/10</div></th>
+      <th>HW<div class="max-lbl">/10</div></th>
+      <th>Test<div class="max-lbl">/20</div></th>
+      <th>Exam<div class="max-lbl">/60</div></th>`;
+  } else if (type==='attendance') {
+    colHeaders = Array.from({length:14},(_,i)=>`<th>W${i+1}<div class="max-lbl">/10</div></th>`).join('');
+  } else {
+    colHeaders = [
+      ...Array.from({length:10},(_,i)=>`<th>A${i+1}<div class="max-lbl">/5</div></th>`),
+      ...Array.from({length:6}, (_,i)=>`<th>P${i+1}<div class="max-lbl">/5</div></th>`)
+    ].join('');
+  }
+
+  // Student rows
+  let rowNum=0;
+  const rows = roster.map(student => {
+    if (!student.name) return ''; // withdrawn — skip
+    rowNum++;
+    const vals = initData ? initData[student.idx] : null;
+
+    let cells='';
+    if (type==='score') {
+      const maxes=[10,10,20,60];
+      for (let c=0;c<4;c++) {
+        const v = vals ? (vals[c]??'') : '';
+        cells += `<td><input class="score-input" type="number" min="0" max="${maxes[c]}"
+          data-idx="${student.idx}" data-col="${c}" data-max="${maxes[c]}" data-min="0"
+          value="${v}" oninput="onInput(this)"></td>`;
+      }
+    } else if (type==='attendance') {
+      for (let c=0;c<14;c++) {
+        const v = vals ? (vals[c]??'') : '';
+        cells += `<td><input class="score-input" type="number" min="0" max="10"
+          data-idx="${student.idx}" data-col="${c}" data-max="10" data-min="0"
+          value="${v}" oninput="onInput(this)"></td>`;
+      }
+    } else {
+      // vals[0]=name, vals[1..10]=aff, vals[11..16]=psy
+      for (let c=0;c<16;c++) {
+        const v = vals ? (vals[c+1]??'') : '';
+        cells += `<td><input class="score-input" type="number" min="1" max="5"
+          data-idx="${student.idx}" data-col="${c}" data-max="5" data-min="1"
+          value="${v}" oninput="onInput(this)"></td>`;
+      }
+    }
+
+    return `<tr>
+      <td>
+        <div class="student-name">${student.name}</div>
+        <div class="student-num">#${rowNum}</div>
+      </td>${cells}
+    </tr>`;
+  }).join('');
+
+  const visCount = roster.filter(s=>s.name).length;
+
+  render(`
+    <div class="header">
+      <button class="header-back" id="btn-back">‹</button>
+      <div class="header-titles" style="flex:1">
+        <div class="header-title">${S.selClass}${S.selSubject?' — '+S.selSubject:''}</div>
+        <div class="header-sub">${type.charAt(0).toUpperCase()+type.slice(1)} · Term ${S.term}</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="entry-meta">
+        <span><strong>${visCount}</strong> students &nbsp;·&nbsp; ${S.session}</span>
+        ${hasDraftData?'<span style="color:var(--warning)">⚠ Unsaved draft</span>':''}
+      </div>
+
+      <div class="grid-wrap">
+        <table class="entry-table">
+          <thead><tr><th>Student</th>${colHeaders}</tr></thead>
+          <tbody id="entry-body">${rows||'<tr><td colspan="20" class="empty-msg">No students found</td></tr>'}</tbody>
+        </table>
+      </div>
+
+      <div class="upload-panel">
+        <div class="upload-status" id="upload-status">Changes auto-saved as draft.</div>
+        <div class="btn-row">
+          <button class="btn btn-success" id="btn-upload">⬆ Upload to Cloud</button>
+          <button class="btn btn-outline"  id="btn-pdf">📄 PDF</button>
+        </div>
+      </div>
+    </div>
+  `);
+
+  el('btn-back').onclick   = () => goBackFromEntry();
+  el('btn-upload').onclick = () => doUpload();
+  // PDF only available for scores
+  if (S.selType === 'score' && S.selSubject) {
+    el('btn-pdf').onclick = () => doGeneratePdf();
+  } else {
+    el('btn-pdf').style.opacity = '0.4';
+    el('btn-pdf').title = 'PDF available for Scores only';
+    el('btn-pdf').onclick = () => showToast('PDF is available for Scores only','');
+  }
+}
+
+// ============================================================
+// PDF GENERATION
+// ============================================================
+async function doGeneratePdf() {
+  const btn = el('btn-pdf');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating…';
+
+  try {
+    const res = await gasGet({
+      action:  'generatePdf',
+      class:   S.selClass,
+      subject: S.selSubject,
+      token:   S.token
+    });
+
+    if (res.status === 'success') {
+      btn.disabled = false; btn.textContent = '\u{1F4C4} PDF';
+      showPdfModal(res.pdfBase64, S.selClass, S.selSubject);
+      return;
+    }
+
+    if (res.message?.toLowerCase().includes('expired')) {
+      S.pendingAction = doGeneratePdf;
+      showReloginModal();
+      btn.disabled = false; btn.textContent = '\u{1F4C4} PDF';
+      return;
+    }
+
+    showToast(res.message || 'PDF generation failed', 'error');
+    btn.disabled = false; btn.textContent = '\u{1F4C4} PDF';
+
+  } catch(e) {
+    showToast('Network error \u2014 could not generate PDF', 'error');
+    btn.disabled = false; btn.textContent = '\u{1F4C4} PDF';
+  }
+}
+
+function showPdfModal(base64, cls, subject) {
+  const bytes  = atob(base64);
+  const arr    = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  const blob    = new Blob([arr], { type: 'application/pdf' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'pdf-modal';
+  overlay.style.cssText = 'align-items:stretch; padding:0;';
+  overlay.innerHTML = `
+    <div style="display:flex;flex-direction:column;width:100%;height:100%;background:white;border-radius:0;">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;
+                  background:var(--primary);color:white;flex-shrink:0;">
+        <button onclick="closePdfModal()" style="background:rgba(255,255,255,0.2);
+          border:none;color:white;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:13px;">
+          \u2715 Close
+        </button>
+        <div style="flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          ${cls} \u2014 ${subject}
+        </div>
+        <button onclick="printPdf()" style="background:rgba(255,255,255,0.2);
+          border:none;color:white;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:13px;">
+          \u{1F5A8} Print
+        </button>
+        <a id="pdf-download" href="${blobUrl}" download="MarkSheet_${cls}_${subject}.pdf"
+          style="background:rgba(255,255,255,0.2);color:white;padding:5px 12px;
+          border-radius:16px;font-size:13px;text-decoration:none;">
+          \u{2B07} Save
+        </a>
+      </div>
+      <iframe id="pdf-frame" src="${blobUrl}" style="flex:1;border:none;width:100%;"></iframe>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function closePdfModal() {
+  const modal = el('pdf-modal');
+  if (modal) {
+    const frame = modal.querySelector('#pdf-frame');
+    if (frame) URL.revokeObjectURL(frame.src);
+    modal.remove();
+  }
+}
+
+function printPdf() {
+  const frame = el('pdf-frame');
+  if (frame) { frame.contentWindow.focus(); frame.contentWindow.print(); }
+}
+
+// ============================================================
+// INPUT + AUTO-SAVE
+// ============================================================
+function onInput(input) {
+  const max = Number(input.dataset.max);
+  const min = Number(input.dataset.min);
+  const val = Number(input.value);
+
+  if (input.value!=='' && (val<min||val>max)) {
+    input.classList.add('bad');
+    el('upload-status').textContent = `⚠ Value out of range (${min}–${max})`;
+  } else {
+    input.classList.remove('bad');
+    el('upload-status').textContent = 'Draft saved ✓';
+  }
+  autoSaveDraft();
+}
+
+function autoSaveDraft() {
+  saveDraft(S.selClass, S.selSubject, S.selType, collectData());
+}
+
+// ============================================================
+// COLLECT DATA FROM GRID
+// ============================================================
+function collectData() {
+  const type = S.selType;
+  const map  = {};
+
+  document.querySelectorAll('.score-input').forEach(inp => {
+    const idx = Number(inp.dataset.idx);
+    const col = Number(inp.dataset.col);
+    if (!map[idx]) map[idx]={};
+    map[idx][col] = inp.value==='' ? null : Number(inp.value);
+  });
+
+  return S.roster.map(student => {
+    if (!student.name) {
+      // Withdrawn: zero-fill to preserve position
+      if (type==='score')      return [0,0,0,0];
+      if (type==='attendance') return new Array(14).fill(0);
+      if (type==='assessment') return ['', ...new Array(16).fill(0)];
+    }
+    const cols = map[student.idx]||{};
+    if (type==='score')      return [cols[0]??0, cols[1]??0, cols[2]??0, cols[3]??0];
+    if (type==='attendance') return Array.from({length:14},(_,i)=>cols[i]??0);
+    if (type==='assessment') return [student.name, ...Array.from({length:16},(_,i)=>cols[i]??0)];
+  });
+}
+
+// ============================================================
+// UPLOAD
+// ============================================================
+async function doUpload() {
+  const bads = document.querySelectorAll('.score-input.bad');
+  if (bads.length) { showToast(`Fix ${bads.length} invalid value(s) first`,'error'); return; }
+
+  const btn = el('btn-upload');
+  const sta = el('upload-status');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Uploading…';
+  sta.textContent='Uploading to cloud…';
+
+  const students = collectData();
+
+  try {
+    const res = await gasPost({
+      action:'upload', token:S.token,
+      type:S.selType, className:S.selClass,
+      subject:S.selSubject||'', students
+    });
+
+    if (res.status==='success') {
+      clearDraft(S.selClass, S.selSubject, S.selType);
+      showToast('Uploaded successfully ✓','success');
+      sta.textContent='Upload complete ✓';
+      btn.disabled=false; btn.textContent='⬆ Upload to Cloud';
+      return;
+    }
+
+    if (res.message?.toLowerCase().includes('expired')) {
+      S.pendingAction = doUpload;
+      showReloginModal();
+      btn.disabled=false; btn.textContent='⬆ Upload to Cloud';
+      sta.textContent='Session expired — please re-login.';
+      return;
+    }
+
+    showToast(res.message||'Upload failed','error');
+    sta.textContent='Upload failed. Try again.';
+    btn.disabled=false; btn.textContent='⬆ Upload to Cloud';
+
+  } catch(e) {
+    showToast('Network error — draft is safe locally.','error');
+    sta.textContent='Upload failed — draft preserved locally.';
+    btn.disabled=false; btn.textContent='⬆ Upload to Cloud';
+  }
+}
+
+// ============================================================
+// RELOGIN MODAL
+// ============================================================
+function showReloginModal() {
+  const overlay = document.createElement('div');
+  overlay.className='modal-overlay'; overlay.id='modal-overlay';
+  overlay.innerHTML=`
+    <div class="modal">
+      <div class="modal-title">Session Expired</div>
+      <div class="modal-desc">Sign in again — your draft is safe and will upload automatically.</div>
+      <div id="relogin-err" class="alert alert-error hidden"></div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input class="form-input" id="inp-user" type="text" placeholder="Username" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="inp-pass" type="password" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-block" id="btn-login" onclick="doLogin(true)">Sign In</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  el('inp-pass').focus();
+}
+
+function closeModal() {
+  el('modal-overlay')?.remove();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  loadSession();
+  if (isLoggedIn()) renderDashboard();
+  else              renderLogin();
+}
+
+init();
+</script>
+</body>
+</html>

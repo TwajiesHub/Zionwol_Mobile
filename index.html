@@ -642,9 +642,17 @@ function renderTypeSelect() {
           <div class="type-desc">Affective &amp; psychomotor ratings (1–5)</div>
         </div>
       </div>
+
+      <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:10px;">
+        <button class="btn btn-outline" id="btn-full-pdf"
+          style="width:100%;font-size:14px;padding:13px;">
+          📄 Full Class PDF — All Scores
+        </button>
+      </div>
     </div>
   `);
-  el('btn-back').onclick = () => renderDashboard();
+  el('btn-back').onclick     = () => renderDashboard();
+  el('btn-full-pdf').onclick = () => doGenerateFullPdf();
 }
 
 async function selectType(type) {
@@ -928,7 +936,7 @@ async function doGeneratePdf() {
 // Store blob URL so we can revoke it on close
 let _pdfBlobUrl = null;
 
-function showPdfModal(html, cls, subject) {
+function showPdfModal(html, title, subtitle) {
   // Create a blob URL from the HTML string
   const blob    = new Blob([html], { type: 'text/html' });
   _pdfBlobUrl   = URL.createObjectURL(blob);
@@ -946,7 +954,7 @@ function showPdfModal(html, cls, subject) {
         </button>
         <div style="flex:1;font-size:13px;font-weight:600;overflow:hidden;
                     text-overflow:ellipsis;white-space:nowrap;min-width:80px;">
-          ${cls} — ${subject}
+          ${title}${subtitle ? ' — ' + subtitle : ''}
         </div>
         <button onclick="printPdf()" style="background:rgba(255,255,255,0.2);
           border:none;color:white;padding:5px 12px;border-radius:16px;
@@ -970,6 +978,44 @@ function closePdfModal() {
 function printPdf() {
   // Open in new tab so browser print dialog works cleanly on all devices
   if (_pdfBlobUrl) window.open(_pdfBlobUrl, '_blank');
+}
+
+// ============================================================
+// FULL CLASS PDF
+// ============================================================
+async function doGenerateFullPdf() {
+  const btn = el('btn-full-pdf');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-color:var(--border);border-top-color:var(--primary);display:inline-block;width:14px;height:14px;border-width:2px;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;"></span>Generating…';
+
+  try {
+    const res = await gasGet({ action:'generateFullPdf', class:S.selClass, token:S.token });
+
+    if (res.status === 'success') {
+      btn.disabled = false;
+      btn.textContent = '📄 Full Class PDF — All Scores';
+      showPdfModal(res.html, S.selClass + ' — All Subjects (' + res.subjectCount + ')', res.pageCount + ' page(s)');
+      return;
+    }
+
+    if (res.message && res.message.toLowerCase().includes('expired')) {
+      S.pendingAction = doGenerateFullPdf;
+      showReloginModal();
+      btn.disabled = false;
+      btn.textContent = '📄 Full Class PDF — All Scores';
+      return;
+    }
+
+    showToast(res.message || 'PDF generation failed', 'error');
+    btn.disabled = false;
+    btn.textContent = '📄 Full Class PDF — All Scores';
+
+  } catch(e) {
+    showToast('Network error — could not generate PDF', 'error');
+    btn.disabled = false;
+    btn.textContent = '📄 Full Class PDF — All Scores';
+  }
 }
 
 // ============================================================
